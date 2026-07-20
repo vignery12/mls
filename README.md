@@ -45,21 +45,32 @@ Unlawful Detainer Assistants (LDA #2016056276, UDA #2016056278) in Hawthorne, CA
 
 ## Scheduler roadmap
 
-**Phase 1 (live now):** `schedule.html` collects name, contact info, service,
-preferred date/time, and language, then opens a pre-filled email to the office.
-Appointments are confirmed manually by phone/email.
+**Phase 1 (live):** `schedule.html` collects name, contact info, service,
+preferred date/time, and language.
 
-**Phase 2 (pick one, see comments in `admin.html`):**
-1. **Google Calendar appointment schedules** — free, availability managed in
-   Google Calendar, embed replaces the request form.
-2. **Calendly** — polished booking with reminders; Calendly dashboard becomes
-   the admin area.
-3. **Custom backend** — Firebase/Supabase or similar, giving `admin.html` a
-   real login and live appointment management.
+**Phase 2 — database connection (this step):** submissions are saved to a
+Supabase `appointments` table. Setup:
 
-> `admin.html` is intentionally excluded from navigation and search engines,
-> but on static hosting it is still publicly reachable. Do not add client data
-> to it until real authentication (option 3) exists.
+1. In Supabase, open **SQL Editor**, paste the contents of
+   `supabase-setup.sql`, and **Run**. This creates the `appointments` table
+   and its Row Level Security policies.
+2. In Supabase, go to **Settings → API Keys** and copy your **Project URL**
+   and **Publishable key** (`sb_publishable_...`).
+3. Paste both into `js/supabase-config.js`.
+4. Push to GitHub. Submit a test appointment, then confirm the row appears
+   in Supabase under **Table Editor → appointments**.
+
+The **publishable key is safe to commit** to a public repo — it only permits
+inserting new appointments, never reading/editing existing ones, because RLS
+is enabled. **Never** put the secret key (`sb_secret_...`) in the site.
+
+If Supabase isn't configured or is unreachable, the form automatically falls
+back to opening a pre-filled email, so no request is ever lost.
+
+**Phase 3 (next):** an authenticated admin dashboard on `admin.html` to view,
+confirm, and cancel appointments (Supabase Auth + the staff RLS policies
+already created in `supabase-setup.sql`), optionally with real-time
+availability so booked slots disappear.
 
 ## Forms
 

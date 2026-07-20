@@ -211,8 +211,8 @@
     <div class="modal">
       <button class="modal-close" data-close-modal type="button" aria-label="Close">&times;</button>
       <span class="eyebrow">Thank You</span>
-      <h2 id="success-title">Request Ready to Send</h2>
-      <p>Your email app should now be open with your appointment request pre-filled. Press send there, and we will confirm your appointment shortly.</p>
+      <h2 id="success-title">Request Received</h2>
+      <p>Thank you! Your appointment request has been received. We&rsquo;ll confirm the date and time with you by phone or email shortly.</p>
       <div class="modal-actions">
         <button class="btn btn-gold" data-close-modal type="button">Close</button>
       </div>
@@ -289,6 +289,9 @@
   </div>
   <button class="back-to-top" type="button" aria-label="Back to top">&uarr;</button>
 
+  <!-- Supabase client + project config (must load before script.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

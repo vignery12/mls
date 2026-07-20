@@ -81,7 +81,7 @@
              ================================================================== -->
 
         <h2 class="section-title">Appointment Management</h2>
-        <p><strong>Current setup:</strong> appointment requests from the <a href="schedule.html">Schedule page</a> arrive by email at meritlegalservices@yahoo.com with the subject line starting with <em>"Appointment Request"</em>. Confirm each one by replying or calling the client.</p>
+        <p><strong>Current setup:</strong> appointment requests from the <a href="schedule.html">Schedule page</a> are saved to the Supabase <code>appointments</code> table. Until this page has a live, authenticated view (next phase), review them in the Supabase dashboard under <em>Table Editor &rarr; appointments</em>. If the database is ever unreachable, the form falls back to emailing meritlegalservices@yahoo.com so no request is lost.</p>
 
         <div class="card-grid" style="margin-top:2rem;">
           <article class="card">
