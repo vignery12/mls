@@ -16,6 +16,6 @@
    falls back to opening a pre-filled email, so the site keeps working.
    ========================================================================== */
 window.MLS_SUPABASE = {
-  url: "https://YOUR-PROJECT-REF.supabase.co",
-  key: "sb_publishable_YOUR-PUBLISHABLE-KEY"
+  url: "https://lysrsobshsufydfundwt.supabase.co",
+  key: "sb_publishable_iFebyo5an8VPP18UcRxzVw_G4n6OUYN"
 };
