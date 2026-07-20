@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Merit Legal Services</title>
+  <meta name="description" content="Administration area for Merit Legal Services.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#16274a">
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- ======= Header (minimal, admin) ======= -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html">
+        <img src="assets/images/logo.png" alt="Merit Legal Services logo" width="49" height="50">
+        <span class="brand-name">Merit Legal Services<span>Admin</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Admin navigation">
+        <ul>
+          <li><a href="index.html">Back to Site</a></li>
+          <li><a href="schedule.html">View Public Scheduler</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <p class="crumb">Merit Legal Services</p>
+        <h1>Scheduler Admin</h1>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <!-- ==================================================================
+             ADMIN PAGE — SCAFFOLD
+
+             IMPORTANT: This site is static (GitHub Pages has no server), so
+             this page cannot yet have a real login or read live appointment
+             data. Anything "protected" with only JavaScript on a static site
+             can be bypassed, so no client-side password gate is included —
+             it would create a false sense of security.
+
+             Until a booking backend is chosen, appointment requests arrive
+             as emails from schedule.html (subject line starts with
+             "Appointment Request").
+
+             RECOMMENDED UPGRADE PATHS (pick one):
+
+             1. Google Calendar appointment schedules (easiest, free)
+                - Create an appointment schedule in Google Calendar.
+                - Availability is managed inside Google Calendar (this page
+                  then just links to it).
+                - Embed the booking page in schedule.html with the iframe
+                  snippet Google provides, replacing the request form.
+
+             2. Calendly (polished, free tier)
+                - Create an event type, set office hours, connect email.
+                - Embed in schedule.html:
+                  <div class="calendly-inline-widget"
+                       data-url="https://calendly.com/YOUR-LINK"
+                       style="min-width:320px;height:700px;"></div>
+                  <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+                - Calendly's own dashboard becomes the admin area.
+
+             3. Custom backend (full control)
+                - Small API (e.g. Firebase, Supabase, or Cloudflare Workers)
+                  storing appointments + real authentication for this page.
+                - schedule.html posts to the API; this page lists, confirms
+                  and cancels appointments.
+             ================================================================== -->
+
+        <h2 class="section-title">Appointment Management</h2>
+        <p><strong>Current setup:</strong> appointment requests from the <a href="schedule.html">Schedule page</a> arrive by email at meritlegalservices@yahoo.com with the subject line starting with <em>"Appointment Request"</em>. Confirm each one by replying or calling the client.</p>
+
+        <div class="card-grid" style="margin-top:2rem;">
+          <article class="card">
+            <div class="card-body">
+              <h3>Option 1: Google Calendar</h3>
+              <p>Free with a Google account. Set your available hours in Google Calendar's "appointment schedules," and clients book directly into your calendar. Easiest to maintain.</p>
+              <a class="card-link" href="https://support.google.com/calendar/answer/10729749" target="_blank" rel="noopener">Setup guide &gt;</a>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-body">
+              <h3>Option 2: Calendly</h3>
+              <p>Polished booking experience with reminders and rescheduling built in. Free tier covers one event type. Embeds directly into the Schedule page.</p>
+              <a class="card-link" href="https://calendly.com" target="_blank" rel="noopener">calendly.com &gt;</a>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-body">
+              <h3>Option 3: Custom Backend</h3>
+              <p>Full control: appointments stored in a database, real admin login, confirm/cancel from this page. Requires adding a small backend (Firebase, Supabase, or similar).</p>
+              <a class="card-link" href="schedule.html">See current form &gt;</a>
+            </div>
+          </article>
+        </div>
+
+        <div class="disclaimer" style="margin-top:2.5rem; border-radius:10px;">
+          <div class="container">
+            <p><strong>Security note:</strong> this page is excluded from search engines (noindex) and hidden from site navigation, but on static hosting it is still publicly reachable by URL. Do not place client information on this page until real authentication (Option 3) is added.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
