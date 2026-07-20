@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schedule an Appointment | Merit Legal Services</title>
-  <meta name="description" content="Request an appointment with Merit Legal Services in Hawthorne, CA. Choose your service, preferred date and time, and we will confirm by phone or email.">
+  <meta name="description" content="Log in to request, view, reschedule, or cancel an appointment with Merit Legal Services in Hawthorne, CA.">
   <link rel="canonical" href="https://www.meritlegalservices.com/schedule.html">
   <meta name="theme-color" content="#16274a">
 
@@ -12,12 +12,12 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Merit Legal Services">
   <meta property="og:title" content="Schedule an Appointment | Merit Legal Services">
-  <meta property="og:description" content="Request an appointment with Merit Legal Services in Hawthorne, CA. Choose your service, preferred date and time, and we will confirm by phone or email.">
+  <meta property="og:description" content="Log in to request, view, reschedule, or cancel an appointment with Merit Legal Services in Hawthorne, CA.">
   <meta property="og:url" content="https://www.meritlegalservices.com/schedule.html">
   <meta property="og:image" content="https://www.meritlegalservices.com/assets/images/logo.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Schedule an Appointment | Merit Legal Services">
-  <meta name="twitter:description" content="Request an appointment with Merit Legal Services in Hawthorne, CA. Choose your service, preferred date and time, and we will confirm by phone or email.">
+  <meta name="twitter:description" content="Log in to request, view, reschedule, or cancel an appointment with Merit Legal Services.">
   <meta name="twitter:image" content="https://www.meritlegalservices.com/assets/images/logo.png">
 
   <!-- Icons -->
@@ -89,120 +89,204 @@
     </section>
 
     <section class="section">
-      <div class="container contact-grid">
-        <div class="form-card reveal">
-          <h2 class="section-title">Request an Appointment:</h2>
-          <p class="required-note">* Indicates required field. We will confirm your appointment by phone or email.</p>
+      <div class="container">
 
-          <!-- ============================================================
-               SCHEDULER — PHASE 1 (live now)
-               This form emails an appointment request to the office.
-               PHASE 2: to move to real-time self-booking, replace this
-               form with an embed from one of:
-                 - Google Calendar appointment schedules (free w/ Google acct)
-                 - Calendly (free tier available)
-               and manage availability from admin.html.
-               ============================================================ -->
-          <form id="schedule-form" novalidate>
-            <div class="form-row">
-              <div class="form-group" id="group-sched-first">
-                <label for="sched-first">First Name <span class="req">*</span></label>
-                <input type="text" id="sched-first" name="first-name" autocomplete="given-name">
-                <p class="error-msg">Please enter your first name.</p>
-              </div>
-              <div class="form-group" id="group-sched-last">
-                <label for="sched-last">Last Name <span class="req">*</span></label>
-                <input type="text" id="sched-last" name="last-name" autocomplete="family-name">
-                <p class="error-msg">Please enter your last name.</p>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group" id="group-sched-email">
-                <label for="sched-email">Email <span class="req">*</span></label>
-                <input type="email" id="sched-email" name="email" autocomplete="email">
-                <p class="error-msg">Please enter a valid email address.</p>
-              </div>
-              <div class="form-group" id="group-sched-phone">
-                <label for="sched-phone">Phone <span class="req">*</span></label>
-                <input type="tel" id="sched-phone" name="phone" autocomplete="tel">
-                <p class="error-msg">Please enter your phone number.</p>
-              </div>
-            </div>
-            <div class="form-group" id="group-sched-service">
-              <label for="sched-service">Service Needed <span class="req">*</span></label>
-              <select id="sched-service" name="service">
-                <option value="">Select a service...</option>
-                <option>Family (Divorce, Separation, Custody, Support)</option>
-                <option>Unlawful Detainer (Eviction)</option>
-                <option>Small Claims</option>
-                <option>Restraining Order</option>
-                <option>Last Will &amp; Testament / Living Trust</option>
-                <option>Power of Attorney / Healthcare Directive</option>
-                <option>Conservatorship / Guardianship</option>
-                <option>Name Change</option>
-                <option>Process Serving</option>
-                <option>Judgment Collection</option>
-                <option>Business Incorporation</option>
-                <option>Mediation</option>
-                <option>Other</option>
-              </select>
-              <p class="error-msg">Please select a service.</p>
-            </div>
-            <div class="form-row">
-              <div class="form-group" id="group-sched-date">
-                <label for="sched-date">Preferred Date <span class="req">*</span></label>
-                <input type="date" id="sched-date" name="date">
-                <p class="error-msg">Please choose a date.</p>
-              </div>
-              <div class="form-group" id="group-sched-time">
-                <label for="sched-time">Preferred Time <span class="req">*</span></label>
-                <select id="sched-time" name="time">
-                  <option value="">Select a time...</option>
-                  <option>9:00 AM</option>
-                  <option>10:00 AM</option>
-                  <option>11:00 AM</option>
-                  <option>12:00 PM</option>
-                  <option>1:00 PM</option>
-                  <option>2:00 PM</option>
-                  <option>3:00 PM</option>
-                  <option>4:00 PM</option>
-                </select>
-                <p class="error-msg">Please choose a time.</p>
-              </div>
-            </div>
-            <div class="form-group" id="group-sched-language">
-              <label for="sched-language">Preferred Language</label>
-              <select id="sched-language" name="language">
-                <option>English</option>
-                <option>Espa&ntilde;ol</option>
-              </select>
-            </div>
-            <div class="form-group" id="group-sched-notes">
-              <label for="sched-notes">Anything we should know?</label>
-              <textarea id="sched-notes" name="notes"></textarea>
-            </div>
-            <button class="btn btn-gold" type="submit">Request Appointment</button>
-          </form>
-        </div>
+        <!-- While we check whether you're signed in -->
+        <div id="portal-loading" class="portal-status">Loading&hellip;</div>
 
-        <div class="reveal">
-          <div class="info-card">
-            <h2>How It Works</h2>
-            <ul>
-              <li><b>1.</b> <span>Pick the service, date and time that work for you.</span></li>
-              <li><b>2.</b> <span>Send your request &mdash; it goes straight to our office.</span></li>
-              <li><b>3.</b> <span>We confirm your appointment by phone or email.</span></li>
-            </ul>
-          </div>
-          <div class="info-card" style="margin-top:1.2rem;">
-            <h2>Prefer to Call?</h2>
-            <ul>
-              <li><b>T:</b> <span><a href="tel:+13233502486">323.350.2486</a> (English) - La Wanda Ford</span></li>
-              <li><b>T:</b> <span><a href="tel:+13232906650">323.290.6650</a> (Espa&ntilde;ol) - Jennifer Calderon</span></li>
-              <li><b>E:</b> <span><a href="mailto:meritlegalservices@yahoo.com">meritlegalservices@yahoo.com</a></span></li>
-            </ul>
+        <!-- Shown if the booking system isn't configured yet -->
+        <div id="portal-unconfigured" class="disclaimer" hidden style="border-radius:10px;">
+          <div class="container">
+            <p><strong>Online scheduling is being set up.</strong> In the meantime please call
+            <a href="tel:+13233502486">323.350.2486</a> (English) or
+            <a href="tel:+13232906650">323.290.6650</a> (Espa&ntilde;ol), or email
+            <a href="mailto:meritlegalservices@yahoo.com">meritlegalservices@yahoo.com</a>.</p>
           </div>
         </div>
+
+        <!-- ============================ LOGGED OUT ============================ -->
+        <div id="auth-view" hidden>
+          <div class="contact-grid">
+            <div class="form-card reveal is-visible">
+              <div class="auth-tabs" role="tablist">
+                <button class="auth-tab is-active" type="button" data-tab="login" role="tab" aria-selected="true">Log In</button>
+                <button class="auth-tab" type="button" data-tab="signup" role="tab" aria-selected="false">Create Account</button>
+              </div>
+
+              <!-- Log in -->
+              <form id="login-form" class="auth-form" novalidate>
+                <p class="required-note">Members can request appointments and manage them here.</p>
+                <div class="form-group" id="group-login-email">
+                  <label for="login-email">Email <span class="req">*</span></label>
+                  <input type="email" id="login-email" name="email" autocomplete="email">
+                  <p class="error-msg">Please enter a valid email address.</p>
+                </div>
+                <div class="form-group" id="group-login-pass">
+                  <label for="login-pass">Password <span class="req">*</span></label>
+                  <input type="password" id="login-pass" name="password" autocomplete="current-password">
+                  <p class="error-msg">Please enter your password.</p>
+                </div>
+                <p class="form-alert" id="login-alert" hidden></p>
+                <button class="btn btn-gold" type="submit">Log In</button>
+                <p class="auth-secondary">
+                  <button type="button" class="linklike" id="forgot-link">Forgot password?</button>
+                </p>
+              </form>
+
+              <!-- Sign up -->
+              <form id="signup-form" class="auth-form" novalidate hidden>
+                <p class="required-note">Create an account to book your first appointment.</p>
+                <div class="form-row">
+                  <div class="form-group" id="group-signup-first">
+                    <label for="signup-first">First Name <span class="req">*</span></label>
+                    <input type="text" id="signup-first" name="first-name" autocomplete="given-name">
+                    <p class="error-msg">Please enter your first name.</p>
+                  </div>
+                  <div class="form-group" id="group-signup-last">
+                    <label for="signup-last">Last Name <span class="req">*</span></label>
+                    <input type="text" id="signup-last" name="last-name" autocomplete="family-name">
+                    <p class="error-msg">Please enter your last name.</p>
+                  </div>
+                </div>
+                <div class="form-group" id="group-signup-email">
+                  <label for="signup-email">Email <span class="req">*</span></label>
+                  <input type="email" id="signup-email" name="email" autocomplete="email">
+                  <p class="error-msg">Please enter a valid email address.</p>
+                </div>
+                <div class="form-group" id="group-signup-pass">
+                  <label for="signup-pass">Password <span class="req">*</span></label>
+                  <input type="password" id="signup-pass" name="password" autocomplete="new-password">
+                  <p class="error-msg">Use at least 8 characters.</p>
+                </div>
+                <p class="form-alert" id="signup-alert" hidden></p>
+                <button class="btn btn-gold" type="submit">Create Account</button>
+              </form>
+            </div>
+
+            <div class="reveal is-visible">
+              <div class="info-card">
+                <h2>How It Works</h2>
+                <ul>
+                  <li><b>1.</b> <span>Create an account or log in.</span></li>
+                  <li><b>2.</b> <span>Pick an open date &amp; time and tell us the service you need.</span></li>
+                  <li><b>3.</b> <span>Your request shows as <em>pending</em> until our office confirms it.</span></li>
+                  <li><b>4.</b> <span>Come back any time to view, reschedule, or cancel.</span></li>
+                </ul>
+              </div>
+              <div class="info-card" style="margin-top:1.2rem;">
+                <h2>Prefer to Call?</h2>
+                <ul>
+                  <li><b>T:</b> <span><a href="tel:+13233502486">323.350.2486</a> (English) - La Wanda Ford</span></li>
+                  <li><b>T:</b> <span><a href="tel:+13232906650">323.290.6650</a> (Espa&ntilde;ol) - Jennifer Calderon</span></li>
+                  <li><b>E:</b> <span><a href="mailto:meritlegalservices@yahoo.com">meritlegalservices@yahoo.com</a></span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================ LOGGED IN ============================ -->
+        <div id="portal-view" hidden>
+          <div class="portal-bar">
+            <span class="portal-who">Signed in as <strong id="portal-email"></strong></span>
+            <button id="logout-btn" class="btn btn-navy btn-sm" type="button">Log Out</button>
+          </div>
+
+          <div class="contact-grid">
+            <div class="form-card">
+              <h2 class="section-title">Request an Appointment</h2>
+              <p class="required-note">* Indicates required field. Choose from the open times our office has published.</p>
+              <form id="booking-form" novalidate>
+                <div class="form-row">
+                  <div class="form-group" id="group-book-first">
+                    <label for="book-first">First Name <span class="req">*</span></label>
+                    <input type="text" id="book-first" name="first-name" autocomplete="given-name">
+                    <p class="error-msg">Please enter your first name.</p>
+                  </div>
+                  <div class="form-group" id="group-book-last">
+                    <label for="book-last">Last Name <span class="req">*</span></label>
+                    <input type="text" id="book-last" name="last-name" autocomplete="family-name">
+                    <p class="error-msg">Please enter your last name.</p>
+                  </div>
+                </div>
+                <div class="form-group" id="group-book-phone">
+                  <label for="book-phone">Phone <span class="req">*</span></label>
+                  <input type="tel" id="book-phone" name="phone" autocomplete="tel">
+                  <p class="error-msg">Please enter your phone number.</p>
+                </div>
+                <div class="form-group" id="group-book-service">
+                  <label for="book-service">Service Needed <span class="req">*</span></label>
+                  <select id="book-service" name="service">
+                    <option value="">Select a service...</option>
+                    <option>Family (Divorce, Separation, Custody, Support)</option>
+                    <option>Unlawful Detainer (Eviction)</option>
+                    <option>Small Claims</option>
+                    <option>Restraining Order</option>
+                    <option>Last Will &amp; Testament / Living Trust</option>
+                    <option>Power of Attorney / Healthcare Directive</option>
+                    <option>Conservatorship / Guardianship</option>
+                    <option>Name Change</option>
+                    <option>Process Serving</option>
+                    <option>Judgment Collection</option>
+                    <option>Business Incorporation</option>
+                    <option>Mediation</option>
+                    <option>Other</option>
+                  </select>
+                  <p class="error-msg">Please select a service.</p>
+                </div>
+                <div class="form-group" id="group-book-slot">
+                  <label for="book-slot">Appointment Date &amp; Time <span class="req">*</span></label>
+                  <select id="book-slot" name="slot">
+                    <option value="">Loading available times&hellip;</option>
+                  </select>
+                  <p class="error-msg">Please choose an available time.</p>
+                  <p class="field-hint" id="no-slots-hint" hidden>No open times right now — please check back soon or call the office.</p>
+                </div>
+                <div class="form-group" id="group-book-language">
+                  <label for="book-language">Preferred Language</label>
+                  <select id="book-language" name="language">
+                    <option>English</option>
+                    <option>Espa&ntilde;ol</option>
+                  </select>
+                </div>
+                <div class="form-group" id="group-book-notes">
+                  <label for="book-notes">Anything we should know?</label>
+                  <textarea id="book-notes" name="notes"></textarea>
+                </div>
+                <p class="form-alert" id="booking-alert" hidden></p>
+                <button class="btn btn-gold" type="submit">Request Appointment</button>
+              </form>
+            </div>
+
+            <div>
+              <div class="info-card">
+                <h2>How It Works</h2>
+                <ul>
+                  <li><b>1.</b> <span>Pick an open date &amp; time and the service you need.</span></li>
+                  <li><b>2.</b> <span>Your request appears below as <em>pending</em>.</span></li>
+                  <li><b>3.</b> <span>Our office confirms, adjusts, or (rarely) declines it.</span></li>
+                  <li><b>4.</b> <span>The confirmed date &amp; time show below — reschedule or cancel any time.</span></li>
+                </ul>
+              </div>
+              <div class="info-card" style="margin-top:1.2rem;">
+                <h2>Prefer to Call?</h2>
+                <ul>
+                  <li><b>T:</b> <span><a href="tel:+13233502486">323.350.2486</a> (English)</span></li>
+                  <li><b>T:</b> <span><a href="tel:+13232906650">323.290.6650</a> (Espa&ntilde;ol)</span></li>
+                  <li><b>E:</b> <span><a href="mailto:meritlegalservices@yahoo.com">meritlegalservices@yahoo.com</a></span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="appts-block">
+            <h2 class="section-title">My Appointments</h2>
+            <div id="my-appointments" class="appts-list">
+              <p class="portal-status">Loading&hellip;</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -212,7 +296,7 @@
       <button class="modal-close" data-close-modal type="button" aria-label="Close">&times;</button>
       <span class="eyebrow">Thank You</span>
       <h2 id="success-title">Request Received</h2>
-      <p>Thank you! Your appointment request has been received. We&rsquo;ll confirm the date and time with you by phone or email shortly.</p>
+      <p>Your appointment request has been received and is now <strong>pending</strong>. We&rsquo;ll confirm the date and time shortly &mdash; you can track its status under &ldquo;My Appointments.&rdquo;</p>
       <div class="modal-actions">
         <button class="btn btn-gold" data-close-modal type="button">Close</button>
       </div>
@@ -282,16 +366,16 @@
         <li><a href="tel:+13232906650">323.290.6650</a><small>Espa&ntilde;ol &mdash; Jennifer Calderon</small></li>
       </ul>
       <div class="modal-actions">
-        <a class="btn btn-navy" href="schedule.html">Schedule an Appointment</a>
         <button class="btn btn-gold" data-close-modal type="button">Close</button>
       </div>
     </div>
   </div>
   <button class="back-to-top" type="button" aria-label="Back to top">&uarr;</button>
 
-  <!-- Supabase client + project config (must load before script.js) -->
+  <!-- Supabase client + project config (must load before the page scripts) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/script.js"></script>
+  <script src="js/portal.js"></script>
 </body>
 </html>

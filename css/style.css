@@ -767,3 +767,165 @@ padding:6rem 5%;
 }
 .notfound h1 { font-size: clamp(2rem, 6vw, 3.4rem); }
 .notfound .btn { margin-top: 1rem; justify-self: center; }
+
+/* ==========================================================================
+   Scheduler portal & admin dashboard
+   (schedule.html, admin-log-in.html — built on the existing tokens above)
+   ========================================================================== */
+
+/* ---------- status / notices ---------- */
+.portal-status { color: var(--ink-soft); padding: 1.4rem 0; }
+
+.form-alert {
+  margin: 0 0 1rem;
+  padding: .7rem .9rem;
+  border-radius: var(--radius);
+  font-size: .92rem;
+  font-weight: 600;
+  background: var(--blue-tint);
+  color: var(--navy-800);
+  border: 1px solid var(--line);
+}
+.form-alert.is-error   { background: #fdecea; color: #8a1c13; border-color: #f3c9c4; }
+.form-alert.is-success { background: #eaf6ec; color: #1e5b2a; border-color: #c6e6cd; }
+
+.field-hint { font-size: .88rem; color: var(--ink-soft); margin-top: .4rem; }
+
+/* ---------- auth tabs ---------- */
+.auth-tabs { display: flex; gap: .4rem; margin-bottom: 1.4rem; border-bottom: 2px solid var(--line); }
+.auth-tab {
+  appearance: none; background: none; border: none; cursor: pointer;
+  font-family: var(--font-body); font-weight: 700; font-size: 1rem;
+  color: var(--ink-soft); padding: .6rem .9rem; border-bottom: 3px solid transparent;
+  margin-bottom: -2px; transition: color .2s ease, border-color .2s ease;
+}
+.auth-tab:hover { color: var(--navy-800); }
+.auth-tab.is-active { color: var(--navy-800); border-bottom-color: var(--gold-500); }
+
+.auth-secondary { margin-top: .9rem; }
+.linklike {
+  appearance: none; background: none; border: none; cursor: pointer; padding: 0;
+  font-family: var(--font-body); font-weight: 700; font-size: .92rem;
+  color: var(--gold-500); text-decoration: underline; text-underline-offset: 3px;
+}
+.linklike:hover { color: var(--navy-800); }
+
+/* ---------- signed-in bar ---------- */
+.portal-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap; background: var(--blue-tint); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: .8rem 1.1rem; margin-bottom: 2rem;
+}
+.portal-who { color: var(--ink-soft); }
+.portal-who strong { color: var(--navy-800); }
+
+.btn-sm { padding: .5rem 1.1rem; font-size: .9rem; }
+.btn-ghost {
+  background: transparent; color: var(--navy-800); border-color: var(--line);
+}
+.btn-ghost:hover { background: var(--blue-tint); border-color: var(--navy-800); }
+
+/* ---------- appointment cards (member + admin) ---------- */
+.appts-block { margin-top: 2.6rem; }
+.appts-list { display: grid; gap: 1rem; }
+
+.appt-card, .admin-appt {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 1.1rem 1.2rem; box-shadow: var(--shadow-sm);
+}
+.appt-head { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-bottom: .5rem; }
+.appt-when { font-family: var(--font-display); font-weight: 700; color: var(--navy-800); font-size: 1.1rem; }
+.appt-service { color: var(--ink); margin: .1rem 0 .3rem; }
+.appt-name { font-weight: 700; color: var(--navy-800); margin-bottom: .15rem; }
+.appt-meta { font-size: .92rem; color: var(--ink-soft); margin-bottom: .3rem; }
+.appt-note { font-size: .9rem; color: var(--ink-soft); margin: .2rem 0; }
+.appt-notes { font-size: .93rem; color: var(--ink); background: var(--blue-tint); border-radius: 8px; padding: .5rem .7rem; margin: .4rem 0; }
+.appt-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .7rem; }
+
+.reschedule-box, .change-box {
+  margin-top: .8rem; padding-top: .8rem; border-top: 1px dashed var(--line);
+}
+.reschedule-label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .4rem; color: var(--navy-800); }
+.reschedule-select {
+  width: 100%; padding: .6rem .7rem; border: 1.5px solid var(--line);
+  border-radius: 8px; font-family: var(--font-body); font-size: .95rem; background: var(--white);
+}
+.reschedule-select:focus { outline: none; border-color: var(--gold-500); }
+
+/* ---------- badges ---------- */
+.badge {
+  display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; padding: .28rem .6rem; border-radius: 999px; white-space: nowrap;
+}
+.badge-pending   { background: #fdf3d6; color: #8a6d10; }
+.badge-confirmed { background: #e4f4e7; color: #1e5b2a; }
+.badge-rejected  { background: #fbe3e0; color: #8a1c13; }
+.badge-cancelled { background: #eceef1; color: #5b6577; }
+.badge-open      { background: #e4f0fb; color: #1c4f86; }
+.badge-draft     { background: #eceef1; color: #5b6577; }
+
+/* ---------- admin login wrap ---------- */
+.admin-auth-wrap { max-width: 480px; }
+
+/* ---------- admin dashboard ---------- */
+.admin-summary { color: var(--gold-500); font-weight: 700; }
+
+.admin-tabs { display: flex; gap: .4rem; margin-bottom: 1.6rem; border-bottom: 2px solid var(--line); }
+.admin-tab {
+  appearance: none; background: none; border: none; cursor: pointer;
+  font-family: var(--font-body); font-weight: 700; font-size: 1.02rem;
+  color: var(--ink-soft); padding: .65rem 1rem; border-bottom: 3px solid transparent;
+  margin-bottom: -2px; transition: color .2s ease, border-color .2s ease;
+}
+.admin-tab:hover { color: var(--navy-800); }
+.admin-tab.is-active { color: var(--navy-800); border-bottom-color: var(--gold-500); }
+
+.admin-panel { animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.filter-bar { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.4rem; }
+.chip {
+  appearance: none; cursor: pointer; font-family: var(--font-body); font-weight: 700;
+  font-size: .88rem; padding: .4rem .9rem; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--white); color: var(--ink-soft);
+  transition: all .15s ease;
+}
+.chip:hover { border-color: var(--navy-800); color: var(--navy-800); }
+.chip.is-active { background: var(--navy-800); border-color: var(--navy-800); color: var(--white); }
+
+.admin-appts { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+/* availability builder */
+.avail-grid { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 2rem; }
+.admin-card-title { font-family: var(--font-display); font-size: 1.25rem; color: var(--navy-800); margin-bottom: 1rem; }
+.check-row { display: flex; align-items: center; gap: .5rem; font-weight: 600; color: var(--ink); margin: .3rem 0 1rem; cursor: pointer; }
+.check-row input { width: auto; }
+
+.weekday-row { display: flex; flex-wrap: wrap; gap: .4rem .9rem; }
+.weekday-row label { display: flex; align-items: center; gap: .35rem; font-size: .92rem; font-weight: 600; cursor: pointer; }
+.weekday-row input { width: auto; }
+
+.time-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+.time-row input[type="time"] { flex: 1; padding: .55rem .7rem; border: 1.5px solid var(--line); border-radius: 8px; font-family: var(--font-body); }
+.time-row input[type="time"]:focus { outline: none; border-color: var(--gold-500); }
+.remove-time { color: var(--ink-soft); font-size: 1.3rem; line-height: 1; text-decoration: none; }
+.remove-time:hover { color: #8a1c13; }
+
+.slots-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.slots-head .admin-card-title { margin-bottom: 0; }
+.slots-actions { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; }
+.slots-actions .check-row { margin: 0; }
+
+.admin-slots { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.admin-table th, .admin-table td { text-align: left; padding: .7rem .9rem; border-bottom: 1px solid var(--line); font-size: .95rem; }
+.admin-table th { background: var(--blue-tint); font-family: var(--font-body); font-weight: 700; color: var(--navy-800); }
+.admin-table tr:last-child td { border-bottom: none; }
+.row-actions { display: flex; gap: 1rem; white-space: nowrap; }
+.row-actions .danger { color: #8a1c13; }
+.row-actions .danger:hover { color: #b3261e; }
+
+@media (max-width: 560px) {
+  .portal-bar { flex-direction: column; align-items: flex-start; }
+  .admin-appts { grid-template-columns: 1fr; }
+}

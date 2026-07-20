@@ -11,12 +11,17 @@ Unlawful Detainer Assistants (LDA #2016056276, UDA #2016056278) in Hawthorne, CA
 ├── mission.html                Our Mission
 ├── services.html               Services
 ├── merit-legal-services.html   Services & Fees
-├── schedule.html               Appointment scheduling (Phase 1: email request)
+├── schedule.html               Member portal: sign up / log in, request & manage appointments
 ├── contact-us.html             Contact form + map
-├── admin.html                  Scheduler admin scaffold (noindex, not in nav)
+├── admin-log-in.html           Staff dashboard: create availability, review requests (noindex)
+├── admin.html                  Redirect to admin-log-in.html (legacy URL)
 ├── 404.html                    Not-found page (GitHub Pages serves this automatically)
 ├── css/style.css               Single stylesheet (brand palette in :root)
-├── js/script.js                Nav, modals, forms, scroll effects
+├── js/script.js                Nav, modals, shared site behavior
+├── js/supabase-config.js       Supabase URL + publishable key, shared client helper
+├── js/portal.js                Member portal logic (schedule.html)
+├── js/admin.js                 Staff dashboard logic (admin-log-in.html)
+├── supabase-setup.sql          Database schema, security policies, booking functions
 ├── assets/images/              Logo (optimized), cover image, favicons
 ├── robots.txt                  Crawl rules + sitemap reference
 ├── sitemap.xml                 All public pages
@@ -43,41 +48,57 @@ Unlawful Detainer Assistants (LDA #2016056276, UDA #2016056278) in Hawthorne, CA
 - `sitemap.xml`, `robots.txt`, favicon + apple touch icon
 - Optimized logo (2.6 MB → 141 KB)
 
-## Scheduler roadmap
+## Scheduling system
 
-**Phase 1 (live):** `schedule.html` collects name, contact info, service,
-preferred date/time, and language.
+The scheduler runs on **Supabase Auth + a published-slot booking model**:
 
-**Phase 2 — database connection (this step):** submissions are saved to a
-Supabase `appointments` table. Setup:
+- **Members** sign up / log in on `schedule.html`, pick from the open times
+  the office has published, and can view, reschedule, or cancel their own
+  appointments. They only ever see *their own* data.
+- **Staff** log in on `admin-log-in.html` to create availability (one-off
+  times **and** auto-generated recurring weekly times), publish it, and
+  review each request — confirm, decline, or move it to a different time.
+- **One client per slot:** requesting a time holds it immediately; if a
+  request is declined or cancelled, the slot re-opens automatically. This is
+  enforced in the database, so two people can't grab the same slot.
 
-1. In Supabase, open **SQL Editor**, paste the contents of
-   `supabase-setup.sql`, and **Run**. This creates the `appointments` table
-   and its Row Level Security policies.
-2. In Supabase, go to **Settings → API Keys** and copy your **Project URL**
-   and **Publishable key** (`sb_publishable_...`).
-3. Paste both into `js/supabase-config.js`.
-4. Push to GitHub. Submit a test appointment, then confirm the row appears
-   in Supabase under **Table Editor → appointments**.
+### One-time setup
 
-The **publishable key is safe to commit** to a public repo — it only permits
-inserting new appointments, never reading/editing existing ones, because RLS
-is enabled. **Never** put the secret key (`sb_secret_...`) in the site.
+1. **Create the tables & functions.** In Supabase, open **SQL Editor**, paste
+   the full contents of `supabase-setup.sql`, and **Run**.
+   ⚠️ This rebuilds the `appointments` table (the booking model changed), so
+   export any existing rows first if you need them.
+2. **Add your keys.** In Supabase go to **Settings → API Keys**, copy the
+   **Project URL** and **Publishable key** (`sb_publishable_...`), and paste
+   both into `js/supabase-config.js`. (These are already filled in for the
+   current project.)
+3. **Create the admin login.** In Supabase, **Authentication → Users → Add
+   user**; enter the staff email + password and tick **Auto Confirm User**.
+   Copy that user's **UID**, then in the SQL Editor run:
+   ```sql
+   insert into public.admins (user_id) values ('PASTE-UID-HERE');
+   ```
+   That account can now sign in at `/admin-log-in.html`. Repeat to add more
+   staff.
+4. **Choose the member email setting.** Under **Authentication → Providers →
+   Email**, decide whether **Confirm email** is on. If on (recommended),
+   members must click a confirmation link before their first login; the page
+   tells them to check their inbox after signing up.
+5. **Publish some times.** Log in to the admin dashboard, add availability on
+   the **Availability** tab, and make sure the times are **Published** so
+   members can see them.
 
-If Supabase isn't configured or is unreachable, the form automatically falls
-back to opening a pre-filled email, so no request is ever lost.
+The **publishable key is safe to commit** to a public repo because Row Level
+Security is enabled on every table — members can read only their own
+appointments, and only accounts in the `admins` table can manage data.
+**Never** put the secret key (`sb_secret_...`) in the site.
 
-**Phase 3 (next):** an authenticated admin dashboard on `admin.html` to view,
-confirm, and cancel appointments (Supabase Auth + the staff RLS policies
-already created in `supabase-setup.sql`), optionally with real-time
-availability so booked slots disappear.
+### Possible next steps
 
-## Forms
-
-Both the contact and scheduling forms currently use `mailto:` (no backend
-required). To send silently instead, swap the `mailto:` block in
-`js/script.js` for a POST to a form service (e.g. Formspree) or your own
-endpoint — the validation logic can stay as-is.
+Automated confirmation / reminder **emails** (e.g. a Supabase Edge Function or
+a form/email service triggered when an appointment is confirmed) are a natural
+future addition — right now confirmations show as live status on the member's
+page rather than being emailed.
 
 ## Content TODOs
 

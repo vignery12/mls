@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Log In | Merit Legal Services</title>
+  <meta name="description" content="Staff scheduling administration for Merit Legal Services.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#16274a">
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- ======= Header (minimal, admin) ======= -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html">
+        <img src="assets/images/logo.png" alt="Merit Legal Services logo" width="49" height="50">
+        <span class="brand-name">Merit Legal Services<span>Staff Admin</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Admin navigation">
+        <ul>
+          <li><a href="index.html">Back to Site</a></li>
+          <li><a href="schedule.html">Member Scheduler</a></li>
+          <li><button id="admin-logout" class="btn btn-navy btn-sm" type="button" hidden>Log Out</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <p class="crumb">Merit Legal Services</p>
+        <h1>Scheduler Admin</h1>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+
+        <div id="admin-loading" class="portal-status">Loading&hellip;</div>
+
+        <!-- Not configured -->
+        <div id="admin-unconfigured" class="disclaimer" hidden style="border-radius:10px;">
+          <div class="container">
+            <p><strong>Supabase isn&rsquo;t connected yet.</strong> Add your project URL and publishable key to
+            <code>js/supabase-config.js</code>, then run <code>supabase-setup.sql</code> in the Supabase SQL editor.</p>
+          </div>
+        </div>
+
+        <!-- ===================== LOGIN ===================== -->
+        <div id="admin-auth" hidden>
+          <div class="admin-auth-wrap">
+            <div class="form-card">
+              <h2 class="section-title">Staff Log In</h2>
+              <p class="required-note">This area is for Merit Legal Services staff only.</p>
+              <form id="admin-login-form" novalidate>
+                <div class="form-group" id="group-admin-email">
+                  <label for="admin-email">Email <span class="req">*</span></label>
+                  <input type="email" id="admin-email" name="email" autocomplete="email">
+                  <p class="error-msg">Please enter a valid email address.</p>
+                </div>
+                <div class="form-group" id="group-admin-pass">
+                  <label for="admin-pass">Password <span class="req">*</span></label>
+                  <input type="password" id="admin-pass" name="password" autocomplete="current-password">
+                  <p class="error-msg">Please enter your password.</p>
+                </div>
+                <p class="form-alert" id="admin-login-alert" hidden></p>
+                <button class="btn btn-gold" type="submit">Log In</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== NOT AUTHORIZED ===================== -->
+        <div id="admin-denied" hidden>
+          <div class="disclaimer" style="border-radius:10px;">
+            <div class="container">
+              <p><strong>This account isn&rsquo;t an administrator.</strong> If you believe this is a mistake, contact
+              your site administrator to be added to the staff list.</p>
+            </div>
+          </div>
+          <p style="margin-top:1.2rem;"><button id="admin-denied-logout" class="btn btn-navy" type="button">Log Out</button></p>
+        </div>
+
+        <!-- ===================== DASHBOARD ===================== -->
+        <div id="admin-dash" hidden>
+          <div class="portal-bar">
+            <span class="portal-who">Signed in as <strong id="admin-who"></strong></span>
+            <span class="admin-summary" id="admin-summary"></span>
+          </div>
+
+          <div class="admin-tabs" role="tablist">
+            <button class="admin-tab is-active" type="button" data-panel="panel-appts" role="tab" aria-selected="true">Appointments</button>
+            <button class="admin-tab" type="button" data-panel="panel-avail" role="tab" aria-selected="false">Availability</button>
+          </div>
+
+          <!-- ---------- Appointments panel ---------- -->
+          <div id="panel-appts" class="admin-panel">
+            <div class="filter-bar" id="appt-filters">
+              <button class="chip is-active" data-filter="pending" type="button">Pending</button>
+              <button class="chip" data-filter="confirmed" type="button">Confirmed</button>
+              <button class="chip" data-filter="rejected" type="button">Declined</button>
+              <button class="chip" data-filter="cancelled" type="button">Cancelled</button>
+              <button class="chip" data-filter="all" type="button">All</button>
+            </div>
+            <div id="admin-appts" class="admin-appts">
+              <p class="portal-status">Loading&hellip;</p>
+            </div>
+          </div>
+
+          <!-- ---------- Availability panel ---------- -->
+          <div id="panel-avail" class="admin-panel" hidden>
+            <div class="avail-grid">
+              <!-- Add single -->
+              <div class="form-card">
+                <h3 class="admin-card-title">Add a single time</h3>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="single-date">Date</label>
+                    <input type="date" id="single-date">
+                  </div>
+                  <div class="form-group">
+                    <label for="single-time">Time</label>
+                    <input type="time" id="single-time" step="900" value="09:00">
+                  </div>
+                </div>
+                <label class="check-row"><input type="checkbox" id="single-publish" checked> Publish immediately</label>
+                <p class="form-alert" id="single-alert" hidden></p>
+                <button class="btn btn-gold btn-sm" id="single-add" type="button">Add Time</button>
+              </div>
+
+              <!-- Generate recurring -->
+              <div class="form-card">
+                <h3 class="admin-card-title">Generate recurring times</h3>
+                <div class="form-group">
+                  <label>Days of week</label>
+                  <div class="weekday-row" id="weekday-row">
+                    <label><input type="checkbox" value="1" checked> Mon</label>
+                    <label><input type="checkbox" value="2" checked> Tue</label>
+                    <label><input type="checkbox" value="3" checked> Wed</label>
+                    <label><input type="checkbox" value="4" checked> Thu</label>
+                    <label><input type="checkbox" value="5" checked> Fri</label>
+                    <label><input type="checkbox" value="6"> Sat</label>
+                    <label><input type="checkbox" value="0"> Sun</label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Times each day</label>
+                  <div id="recur-times"></div>
+                  <button class="linklike" id="add-time-row" type="button">+ Add another time</button>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="recur-from">From date</label>
+                    <input type="date" id="recur-from">
+                  </div>
+                  <div class="form-group">
+                    <label for="recur-to">To date</label>
+                    <input type="date" id="recur-to">
+                  </div>
+                </div>
+                <label class="check-row"><input type="checkbox" id="recur-publish" checked> Publish immediately</label>
+                <p class="form-alert" id="recur-alert" hidden></p>
+                <button class="btn btn-gold btn-sm" id="recur-generate" type="button">Generate Times</button>
+              </div>
+            </div>
+
+            <div class="slots-head">
+              <h3 class="admin-card-title">Published &amp; draft times</h3>
+              <div class="slots-actions">
+                <label class="check-row"><input type="checkbox" id="show-past"> Show past</label>
+                <button class="btn btn-navy btn-sm" id="publish-all" type="button">Publish all drafts</button>
+              </div>
+            </div>
+            <div id="admin-slots" class="admin-slots">
+              <p class="portal-status">Loading&hellip;</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p>Copyright &copy; 2014&ndash;<span data-current-year>2026</span> Merit Legal Services. Staff area.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

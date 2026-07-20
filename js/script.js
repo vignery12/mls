@@ -8,26 +8,6 @@
 
   var OFFICE_EMAIL = "meritlegalservices@yahoo.com";
 
-  /* ---------- Supabase client (optional) ----------
-     Initialized only when js/supabase-config.js has real values filled in
-     and the supabase-js library loaded. If not configured, every DB call
-     path falls back to email so the site keeps working. */
-  var supabaseClient = null;
-  (function initSupabase() {
-    try {
-      var cfg = window.MLS_SUPABASE;
-      var ready = cfg && cfg.url && cfg.key &&
-        cfg.url.indexOf("YOUR-PROJECT-REF") === -1 &&
-        cfg.key.indexOf("YOUR-PUBLISHABLE-KEY") === -1 &&
-        window.supabase && typeof window.supabase.createClient === "function";
-      if (ready) {
-        supabaseClient = window.supabase.createClient(cfg.url, cfg.key);
-      }
-    } catch (err) {
-      supabaseClient = null;
-    }
-  })();
-
   /* ---------- Mobile navigation ---------- */
   var navToggle = document.querySelector(".nav-toggle");
   var mainNav = document.querySelector(".main-nav");
@@ -92,6 +72,9 @@
     if (focusable) focusable.focus();
     document.body.style.overflow = "hidden";
   }
+
+  /* Exposed so page scripts (portal.js) can open shared modals. */
+  window.MLS_openModal = openModal;
 
   function closeModal(overlay) {
     overlay.classList.remove("is-open");
@@ -196,101 +179,6 @@
     });
 
     clearErrorsOnInput(contactForm);
-  }
-
-  /* ---------- Scheduling form (schedule.html) ---------- */
-  var scheduleForm = document.getElementById("schedule-form");
-  if (scheduleForm) {
-    /* Don't allow past dates */
-    var dateInput = document.getElementById("sched-date");
-    if (dateInput) {
-      var today = new Date();
-      var iso = today.getFullYear() + "-" +
-        String(today.getMonth() + 1).padStart(2, "0") + "-" +
-        String(today.getDate()).padStart(2, "0");
-      dateInput.setAttribute("min", iso);
-    }
-
-    scheduleForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      var f = scheduleForm.elements;
-      var invalid = false;
-      invalid = setError("group-sched-first", f["first-name"].value.trim() === "") || invalid;
-      invalid = setError("group-sched-last", f["last-name"].value.trim() === "") || invalid;
-      invalid = setError("group-sched-email", !emailPattern.test(f["email"].value.trim())) || invalid;
-      invalid = setError("group-sched-phone", f["phone"].value.trim() === "") || invalid;
-      invalid = setError("group-sched-service", f["service"].value === "") || invalid;
-      invalid = setError("group-sched-date", f["date"].value === "") || invalid;
-      invalid = setError("group-sched-time", f["time"].value === "") || invalid;
-
-      if (invalid) {
-        var firstError = scheduleForm.querySelector(".has-error input, .has-error select, .has-error textarea");
-        if (firstError) firstError.focus();
-        return;
-      }
-
-      var record = {
-        first_name: f["first-name"].value.trim(),
-        last_name: f["last-name"].value.trim(),
-        email: f["email"].value.trim(),
-        phone: f["phone"].value.trim(),
-        service: f["service"].value,
-        preferred_date: f["date"].value,
-        preferred_time: f["time"].value,
-        language: f["language"].value,
-        notes: f["notes"].value.trim()
-      };
-
-      /* Builds a pre-filled email as a fallback when the database isn't
-         configured or a save fails — so a request is never lost. */
-      function scheduleMailtoFallback() {
-        var subject = encodeURIComponent(
-          "Appointment Request — " + record.service + " — " + record.preferred_date + " " + record.preferred_time
-        );
-        var body = encodeURIComponent(
-          "APPOINTMENT REQUEST\n" +
-          "--------------------------------\n" +
-          "Name: " + record.first_name + " " + record.last_name + "\n" +
-          "Email: " + record.email + "\n" +
-          "Phone: " + record.phone + "\n" +
-          "Service: " + record.service + "\n" +
-          "Preferred Date: " + record.preferred_date + "\n" +
-          "Preferred Time: " + record.preferred_time + "\n" +
-          "Language: " + record.language + "\n\n" +
-          "Notes:\n" + record.notes
-        );
-        window.location.href = "mailto:" + OFFICE_EMAIL + "?subject=" + subject + "&body=" + body;
-      }
-
-      var submitBtn = scheduleForm.querySelector("button[type='submit']");
-
-      if (supabaseClient) {
-        /* Save the request straight into the Supabase appointments table. */
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Sending\u2026"; }
-        supabaseClient.from("appointments").insert(record).then(function (res) {
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Request Appointment"; }
-          if (res && res.error) {
-            console.error("Supabase insert failed:", res.error);
-            scheduleMailtoFallback();   // don't lose the request
-          } else {
-            scheduleForm.reset();
-            openModal("success-modal");
-          }
-        }, function (err) {
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Request Appointment"; }
-          console.error("Supabase request error:", err);
-          scheduleMailtoFallback();
-        });
-      } else {
-        /* Not configured yet — fall back to email. */
-        scheduleMailtoFallback();
-        scheduleForm.reset();
-        openModal("success-modal");
-      }
-    });
-
-    clearErrorsOnInput(scheduleForm);
   }
 
   /* ---------- Back to top ---------- */
