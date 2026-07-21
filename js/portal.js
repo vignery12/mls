@@ -206,12 +206,16 @@
   }
 
   /* ---------- availability: calendar + date-filtered time picker ----------
-     The member picks a DATE on a month calendar (only days with open times are
-     selectable); the time dropdown then shows just that day's times. This keeps
-     the picker usable even when the office publishes months of recurring slots. */
+     The member optionally picks WHO to meet with, then a DATE on a month
+     calendar (only days with open times are selectable); the time dropdown
+     then shows just that day's times. This keeps the picker usable even when
+     the office publishes months of recurring slots. */
   var calEl        = document.getElementById("slot-calendar");
   var timeLabelEl  = document.getElementById("cal-time-label");
-  var slotsByDate  = {};   // "YYYY-MM-DD" -> [slot, ...]
+  var withEl       = document.getElementById("book-with");
+  var allSlotRows  = [];   // raw open slots from the server (unfiltered)
+  var withFilter   = "";   // "" = anyone, otherwise a staff name
+  var slotsByDate  = {};   // "YYYY-MM-DD" -> [slot, ...]  (after the with-filter)
   var availDates   = [];   // sorted list of dates that have open times
   var selectedDate = null;
   var cursor       = null; // { y, m } month currently shown
@@ -239,29 +243,66 @@
     });
   }
 
-  /* Rebuild the booking calendar from the current open slots. */
+  /* Rebuild the "Meet with" dropdown from the distinct people in the open
+     slots, keeping the current choice if it's still offered. */
+  function rebuildWithOptions(rows) {
+    if (!withEl) return;
+    var names = [];
+    rows.forEach(function (s) {
+      if (s.staff_name && names.indexOf(s.staff_name) === -1) names.push(s.staff_name);
+    });
+    names.sort();
+    if (withFilter && names.indexOf(withFilter) === -1) withFilter = ""; // person no longer available
+    withEl.innerHTML = '<option value="">Anyone</option>';
+    names.forEach(function (n) {
+      var o = document.createElement("option");
+      o.value = n; o.textContent = n;
+      if (n === withFilter) o.selected = true;
+      withEl.appendChild(o);
+    });
+    // Hide the control entirely if nobody is named on any slot.
+    var group = document.getElementById("group-book-with");
+    if (group) group.hidden = names.length === 0;
+  }
+
+  /* Fetch fresh availability, then rebuild the people list and the calendar. */
   function refreshCalendar() {
     if (!calEl) return fetchSlots(); // page without a calendar: nothing to draw
     return fetchSlots().then(function (rows) {
-      slotsByDate = {};
-      rows.forEach(function (s) {
-        (slotsByDate[s.slot_date] = slotsByDate[s.slot_date] || []).push(s);
-      });
-      availDates = Object.keys(slotsByDate).sort();
-
-      if (el.noSlotsHint) el.noSlotsHint.hidden = availDates.length > 0;
-
-      // keep the current selection if it still has times, else pick the first
-      if (!selectedDate || !slotsByDate[selectedDate]) {
-        selectedDate = availDates.length ? availDates[0] : null;
-      }
-      var basis = selectedDate || availDates[0] || todayISOparts();
-      var p = String(basis).split("-");
-      cursor = { y: +p[0], m: +p[1] - 1 };
-
-      drawCalendar();
-      populateTimes(selectedDate);
+      allSlotRows = rows;
+      rebuildWithOptions(rows);
+      applyFilter();
       return rows;
+    });
+  }
+
+  /* Rebuild slotsByDate / calendar from the cached rows, honoring withFilter. */
+  function applyFilter() {
+    slotsByDate = {};
+    allSlotRows.forEach(function (s) {
+      if (withFilter && (s.staff_name || "") !== withFilter) return;
+      (slotsByDate[s.slot_date] = slotsByDate[s.slot_date] || []).push(s);
+    });
+    availDates = Object.keys(slotsByDate).sort();
+
+    if (el.noSlotsHint) el.noSlotsHint.hidden = availDates.length > 0;
+
+    // keep the current selection if it still has times, else pick the first
+    if (!selectedDate || !slotsByDate[selectedDate]) {
+      selectedDate = availDates.length ? availDates[0] : null;
+    }
+    var basis = selectedDate || availDates[0] || todayISOparts();
+    var p = String(basis).split("-");
+    cursor = { y: +p[0], m: +p[1] - 1 };
+
+    drawCalendar();
+    populateTimes(selectedDate);
+  }
+
+  if (withEl) {
+    withEl.addEventListener("change", function () {
+      withFilter = withEl.value;
+      applyFilter();
     });
   }
 

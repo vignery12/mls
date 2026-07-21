@@ -53,14 +53,17 @@ Unlawful Detainer Assistants (LDA #2016056276, UDA #2016056278) in Hawthorne, CA
 
 The scheduler runs on **Supabase Auth + a published-slot booking model**:
 
-- **Members** sign up / log in on `schedule.html`, pick a date on a **calendar**
-  (only days with open times are selectable) which filters the time list to
-  that day, choose a time, and can view, reschedule, or cancel their own
-  appointments. They only ever see *their own* data.
+- **Members** sign up / log in on `schedule.html`, optionally filter by
+  **who they want to meet with**, pick a date on a **calendar** (only days with
+  open times are selectable) which filters the time list to that day, choose a
+  time, and can view, reschedule, or cancel their own appointments. They only
+  ever see *their own* data.
 - **Staff** log in on `admin-log-in.html` to create availability (one-off
   times **and** auto-generated recurring weekly times), optionally tagging each
   time with **who it's with**, publish it, and review each request — confirm,
-  decline, or move it to a different time. Staff can also **create an
+  decline, or move it to a different time. The same date + time can be offered
+  more than once as long as each is with a **different person** (e.g. 10:00 with
+  La Wanda and 10:00 with Jennifer run in parallel). Staff can also **create an
   appointment for a call-in / walk-in client** by email; if that email already
   has a member account, the appointment auto-links so the client sees it.
 - **One client per slot:** requesting a time holds it immediately; if a

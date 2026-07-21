@@ -74,9 +74,11 @@ create table public.slots (
   slot_date  date        not null,
   slot_time  time        not null,
   published  boolean     not null default false,
-  staff_name text,                    -- optional: who the appointment is with
+  staff_name text        not null default '',   -- who the appointment is with ('' = unspecified)
   created_by uuid        references auth.users (id) on delete set null,
-  unique (slot_date, slot_time)
+  -- The same date+time may exist more than once as long as it's with a
+  -- DIFFERENT person (e.g. 10:00 with La Wanda AND 10:00 with Jennifer).
+  unique (slot_date, slot_time, staff_name)
 );
 create index if not exists slots_date_idx on public.slots (slot_date, slot_time);
 alter table public.slots enable row level security;

@@ -199,7 +199,7 @@
     if (!date || !time) { alertBox(alertN, "Pick a date and time.", "error"); return; }
     var btn = document.getElementById("single-add");
     setBusy(btn, "Adding\u2026");
-    upsertSlots([{ slot_date: date, slot_time: normTime(time), published: publish, staff_name: staff || null }]).then(function (res) {
+    upsertSlots([{ slot_date: date, slot_time: normTime(time), published: publish, staff_name: staff }]).then(function (res) {
       setBusy(btn, false, "Add Time");
       if (res.error) { alertBox(alertN, res.error.message, "error"); return; }
       alertBox(alertN, "Time added.", "success");
@@ -228,7 +228,7 @@
     for (var d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       if (days.indexOf(d.getDay()) === -1) continue;
       var ds = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-      times.forEach(function (tm) { rows.push({ slot_date: ds, slot_time: tm, published: publish, staff_name: staff || null }); });
+      times.forEach(function (tm) { rows.push({ slot_date: ds, slot_time: tm, published: publish, staff_name: staff }); });
     }
     if (!rows.length) { alertBox(alertN, "No dates matched. Widen the range or weekdays.", "error"); return; }
     if (rows.length > 500) { alertBox(alertN, "That would create " + rows.length + " times. Please narrow the range.", "error"); return; }
@@ -244,8 +244,9 @@
   }
 
   function upsertSlots(rows) {
-    /* ignoreDuplicates so re-running never errors on an existing (date,time) */
-    return sb.from("slots").upsert(rows, { onConflict: "slot_date,slot_time", ignoreDuplicates: true });
+    /* ignoreDuplicates so re-running never errors on an existing
+       (date, time, person). Different people at the same time are kept. */
+    return sb.from("slots").upsert(rows, { onConflict: "slot_date,slot_time,staff_name", ignoreDuplicates: true });
   }
 
   function publishAllDrafts() {

@@ -11,6 +11,17 @@
 alter table public.slots        add column if not exists staff_name text;
 alter table public.appointments add column if not exists staff_name text;
 
+-- 1b. Allow the same date+time more than once as long as it's with a DIFFERENT
+--     person. staff_name becomes a non-null string ('' = unspecified) and the
+--     uniqueness key includes it.
+update public.slots set staff_name = '' where staff_name is null;
+alter table public.slots alter column staff_name set default '';
+alter table public.slots alter column staff_name set not null;
+alter table public.slots drop constraint if exists slots_slot_date_slot_time_key;
+alter table public.slots drop constraint if exists slots_date_time_staff_key;
+alter table public.slots add  constraint slots_date_time_staff_key
+  unique (slot_date, slot_time, staff_name);
+
 -- 2. Allow staff to book for clients who have no member account -------------
 alter table public.appointments alter column user_id drop not null;
 
