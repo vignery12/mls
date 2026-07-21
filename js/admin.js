@@ -157,6 +157,20 @@
     var showPast = document.getElementById("show-past");
     if (showPast) showPast.addEventListener("change", renderSlots);
 
+    /* create appointment (call-in / walk-in) */
+    var toggleCreate = document.getElementById("toggle-create");
+    if (toggleCreate) toggleCreate.addEventListener("click", function () {
+      var card = document.getElementById("create-card");
+      card.hidden = !card.hidden;
+      if (!card.hidden) fillCreateSlots();
+    });
+    var createSubmit = document.getElementById("create-submit");
+    if (createSubmit) createSubmit.addEventListener("click", createAppointment);
+    ["create-first", "create-last", "create-email", "create-phone", "create-service", "create-slot"].forEach(function (id) {
+      var n = document.getElementById(id);
+      if (n) n.addEventListener("input", function () { var g = n.closest(".form-group"); if (g) g.classList.remove("has-error"); });
+    });
+
     refreshAll();
   }
 
@@ -180,11 +194,12 @@
     var date = document.getElementById("single-date").value;
     var time = document.getElementById("single-time").value;
     var publish = document.getElementById("single-publish").checked;
+    var staff = document.getElementById("single-staff").value.trim();
     var alertN = document.getElementById("single-alert");
     if (!date || !time) { alertBox(alertN, "Pick a date and time.", "error"); return; }
     var btn = document.getElementById("single-add");
     setBusy(btn, "Adding\u2026");
-    upsertSlots([{ slot_date: date, slot_time: normTime(time), published: publish }]).then(function (res) {
+    upsertSlots([{ slot_date: date, slot_time: normTime(time), published: publish, staff_name: staff || null }]).then(function (res) {
       setBusy(btn, false, "Add Time");
       if (res.error) { alertBox(alertN, res.error.message, "error"); return; }
       alertBox(alertN, "Time added.", "success");
@@ -201,6 +216,7 @@
     var from = document.getElementById("recur-from").value;
     var to = document.getElementById("recur-to").value;
     var publish = document.getElementById("recur-publish").checked;
+    var staff = document.getElementById("recur-staff").value.trim();
 
     if (!days.length) { alertBox(alertN, "Choose at least one weekday.", "error"); return; }
     if (!times.length) { alertBox(alertN, "Add at least one time.", "error"); return; }
@@ -212,7 +228,7 @@
     for (var d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       if (days.indexOf(d.getDay()) === -1) continue;
       var ds = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-      times.forEach(function (tm) { rows.push({ slot_date: ds, slot_time: tm, published: publish }); });
+      times.forEach(function (tm) { rows.push({ slot_date: ds, slot_time: tm, published: publish, staff_name: staff || null }); });
     }
     if (!rows.length) { alertBox(alertN, "No dates matched. Widen the range or weekdays.", "error"); return; }
     if (rows.length > 500) { alertBox(alertN, "That would create " + rows.length + " times. Please narrow the range.", "error"); return; }
@@ -246,7 +262,7 @@
   function loadSlots() {
     /* Load slots and mark which are held by an active appointment. */
     Promise.all([
-      sb.from("slots").select("id, slot_date, slot_time, published").order("slot_date").order("slot_time"),
+      sb.from("slots").select("id, slot_date, slot_time, published, staff_name").order("slot_date").order("slot_time"),
       sb.from("appointments").select("slot_id").in("status", ["pending", "confirmed"])
     ]).then(function (r) {
       allSlots = (r[0] && r[0].data) || [];
@@ -265,7 +281,7 @@
       el.slotsBox.innerHTML = '<p class="portal-status">No times yet. Add some above.</p>';
       return;
     }
-    var html = '<table class="admin-table"><thead><tr><th>Date</th><th>Time</th><th>Status</th><th></th></tr></thead><tbody>';
+    var html = '<table class="admin-table"><thead><tr><th>Date</th><th>Time</th><th>With</th><th>Status</th><th></th></tr></thead><tbody>';
     rows.forEach(function (s) {
       var booked = !!activeSlotIds[s.id];
       var state = booked ? '<span class="badge badge-confirmed">Booked</span>'
@@ -273,6 +289,7 @@
       html += '<tr>' +
         '<td>' + esc(fmtDate(s.slot_date)) + '</td>' +
         '<td>' + esc(fmtTime(s.slot_time)) + '</td>' +
+        '<td>' + (s.staff_name ? esc(s.staff_name) : '<span class="muted">&mdash;</span>') + '</td>' +
         '<td>' + state + '</td>' +
         '<td class="row-actions">' +
           (s.published
@@ -313,7 +330,7 @@
   function loadAppointments() {
     Promise.all([
       sb.from("appointments")
-        .select("id, first_name, last_name, email, phone, service, language, notes, slot_date, slot_time, status, created_at")
+        .select("id, first_name, last_name, email, phone, service, language, notes, slot_date, slot_time, staff_name, status, created_at")
         .order("slot_date", { ascending: true }).order("slot_time", { ascending: true }),
       sb.rpc("available_slots")
     ]).then(function (r) {
@@ -322,6 +339,70 @@
       openSlots = (r[1] && r[1].data) || [];
       updateSummary();
       renderAppts();
+      fillCreateSlots();
+    });
+  }
+
+  function slotOptionLabel(s) {
+    return fmtDate(s.slot_date) + " \u2014 " + fmtTime(s.slot_time) + (s.staff_name ? " (with " + s.staff_name + ")" : "");
+  }
+
+  function fillCreateSlots() {
+    var sel = document.getElementById("create-slot");
+    if (!sel) return;
+    sel.innerHTML = "";
+    var first = document.createElement("option");
+    first.value = "";
+    first.textContent = openSlots.length ? "Select an open time\u2026" : "No open times — add availability first";
+    sel.appendChild(first);
+    openSlots.forEach(function (s) {
+      var o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = slotOptionLabel(s);
+      sel.appendChild(o);
+    });
+  }
+
+  function createAppointment() {
+    var first = document.getElementById("create-first").value.trim();
+    var last = document.getElementById("create-last").value.trim();
+    var email = document.getElementById("create-email").value.trim();
+    var phone = document.getElementById("create-phone").value.trim();
+    var service = document.getElementById("create-service").value;
+    var slot = document.getElementById("create-slot").value;
+    var language = document.getElementById("create-language").value;
+    var notes = document.getElementById("create-notes").value.trim();
+    var alertN = document.getElementById("create-alert");
+
+    var bad = false;
+    bad = fieldError("group-create-first", first === "") || bad;
+    bad = fieldError("group-create-last", last === "") || bad;
+    bad = fieldError("group-create-email", !emailPattern.test(email)) || bad;
+    bad = fieldError("group-create-phone", phone === "") || bad;
+    bad = fieldError("group-create-service", service === "") || bad;
+    bad = fieldError("group-create-slot", slot === "") || bad;
+    if (bad) return;
+
+    var btn = document.getElementById("create-submit");
+    setBusy(btn, "Creating\u2026");
+    alertBox(alertN, "");
+    sb.rpc("admin_book_slot", {
+      p_slot_id: slot,
+      p_first: first,
+      p_last: last,
+      p_email: email,
+      p_phone: phone,
+      p_service: service,
+      p_language: language,
+      p_notes: notes
+    }).then(function (res) {
+      setBusy(btn, false, "Create Appointment");
+      if (res.error) { alertBox(alertN, res.error.message, "error"); refreshAll(); return; }
+      ["create-first", "create-last", "create-email", "create-phone", "create-notes"].forEach(function (id) { document.getElementById(id).value = ""; });
+      document.getElementById("create-service").value = "";
+      document.getElementById("create-slot").value = "";
+      alertBox(alertN, "Appointment created and confirmed.", "success");
+      refreshAll();
     });
   }
 
@@ -351,7 +432,9 @@
           '<a href="mailto:' + esc(a.email) + '">' + esc(a.email) + '</a> &middot; ' +
           '<a href="tel:' + esc(String(a.phone).replace(/[^0-9+]/g, "")) + '">' + esc(a.phone) + '</a>' +
         '</p>' +
-        '<p class="appt-service"><strong>' + esc(a.service) + '</strong>' + (a.language ? ' &middot; ' + esc(a.language) : '') + '</p>' +
+        '<p class="appt-service"><strong>' + esc(a.service) + '</strong>' +
+          (a.staff_name ? ' &middot; with ' + esc(a.staff_name) : '') +
+          (a.language ? ' &middot; ' + esc(a.language) : '') + '</p>' +
         (a.notes ? '<p class="appt-notes">&ldquo;' + esc(a.notes) + '&rdquo;</p>' : '') +
         '<div class="appt-actions"></div>' +
         '<div class="change-box" hidden></div>';
@@ -394,7 +477,7 @@
       return;
     }
     var opts = '<option value="">Select a new open time\u2026</option>';
-    openSlots.forEach(function (s) { opts += '<option value="' + s.id + '">' + esc(fmtDate(s.slot_date) + " \u2014 " + fmtTime(s.slot_time)) + '</option>'; });
+    openSlots.forEach(function (s) { opts += '<option value="' + s.id + '">' + esc(slotOptionLabel(s)) + '</option>'; });
     box.innerHTML =
       '<label class="reschedule-label">Move to a different open time (confirms it):</label>' +
       '<select class="reschedule-select">' + opts + '</select>' +

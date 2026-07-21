@@ -22,6 +22,7 @@ Unlawful Detainer Assistants (LDA #2016056276, UDA #2016056278) in Hawthorne, CA
 ├── js/portal.js                Member portal logic (schedule.html)
 ├── js/admin.js                 Staff dashboard logic (admin-log-in.html)
 ├── supabase-setup.sql          Database schema, security policies, booking functions
+├── supabase-migration-with-and-walkins.sql   Additive migration for existing databases
 ├── assets/images/              Logo (optimized), cover image, favicons
 ├── robots.txt                  Crawl rules + sitemap reference
 ├── sitemap.xml                 All public pages
@@ -52,12 +53,16 @@ Unlawful Detainer Assistants (LDA #2016056276, UDA #2016056278) in Hawthorne, CA
 
 The scheduler runs on **Supabase Auth + a published-slot booking model**:
 
-- **Members** sign up / log in on `schedule.html`, pick from the open times
-  the office has published, and can view, reschedule, or cancel their own
+- **Members** sign up / log in on `schedule.html`, pick a date on a **calendar**
+  (only days with open times are selectable) which filters the time list to
+  that day, choose a time, and can view, reschedule, or cancel their own
   appointments. They only ever see *their own* data.
 - **Staff** log in on `admin-log-in.html` to create availability (one-off
-  times **and** auto-generated recurring weekly times), publish it, and
-  review each request — confirm, decline, or move it to a different time.
+  times **and** auto-generated recurring weekly times), optionally tagging each
+  time with **who it's with**, publish it, and review each request — confirm,
+  decline, or move it to a different time. Staff can also **create an
+  appointment for a call-in / walk-in client** by email; if that email already
+  has a member account, the appointment auto-links so the client sees it.
 - **One client per slot:** requesting a time holds it immediately; if a
   request is declined or cancelled, the slot re-opens automatically. This is
   enforced in the database, so two people can't grab the same slot.
@@ -68,6 +73,9 @@ The scheduler runs on **Supabase Auth + a published-slot booking model**:
    the full contents of `supabase-setup.sql`, and **Run**.
    ⚠️ This rebuilds the `appointments` table (the booking model changed), so
    export any existing rows first if you need them.
+   *Already ran an earlier version of `supabase-setup.sql`?* To add the
+   "who it's with" field and staff walk-in booking **without losing data**, run
+   `supabase-migration-with-and-walkins.sql` instead — it's additive only.
 2. **Add your keys.** In Supabase go to **Settings → API Keys**, copy the
    **Project URL** and **Publishable key** (`sb_publishable_...`), and paste
    both into `js/supabase-config.js`. (These are already filled in for the

@@ -103,6 +103,74 @@
 
           <!-- ---------- Appointments panel ---------- -->
           <div id="panel-appts" class="admin-panel">
+            <div class="create-appt">
+              <button class="btn btn-navy btn-sm" id="toggle-create" type="button">+ Create appointment (call-in / walk-in)</button>
+              <div class="form-card" id="create-card" hidden>
+                <h3 class="admin-card-title">Create an appointment for a client</h3>
+                <p class="required-note">Books an open time on the client&rsquo;s behalf. If their email already has a member account, it links automatically.</p>
+                <div class="form-row">
+                  <div class="form-group" id="group-create-first">
+                    <label for="create-first">First Name <span class="req">*</span></label>
+                    <input type="text" id="create-first">
+                    <p class="error-msg">Required.</p>
+                  </div>
+                  <div class="form-group" id="group-create-last">
+                    <label for="create-last">Last Name <span class="req">*</span></label>
+                    <input type="text" id="create-last">
+                    <p class="error-msg">Required.</p>
+                  </div>
+                </div>
+                <div class="form-group" id="group-create-email">
+                  <label for="create-email">Email <span class="req">*</span></label>
+                  <input type="email" id="create-email">
+                  <p class="error-msg">Enter a valid email.</p>
+                </div>
+                <div class="form-group" id="group-create-phone">
+                  <label for="create-phone">Phone <span class="req">*</span></label>
+                  <input type="tel" id="create-phone">
+                  <p class="error-msg">Required.</p>
+                </div>
+                <div class="form-group" id="group-create-service">
+                  <label for="create-service">Service <span class="req">*</span></label>
+                  <select id="create-service">
+                    <option value="">Select a service...</option>
+                    <option>Family (Divorce, Separation, Custody, Support)</option>
+                    <option>Unlawful Detainer (Eviction)</option>
+                    <option>Small Claims</option>
+                    <option>Restraining Order</option>
+                    <option>Last Will &amp; Testament / Living Trust</option>
+                    <option>Power of Attorney / Healthcare Directive</option>
+                    <option>Conservatorship / Guardianship</option>
+                    <option>Name Change</option>
+                    <option>Process Serving</option>
+                    <option>Judgment Collection</option>
+                    <option>Business Incorporation</option>
+                    <option>Mediation</option>
+                    <option>Other</option>
+                  </select>
+                  <p class="error-msg">Please select a service.</p>
+                </div>
+                <div class="form-group" id="group-create-slot">
+                  <label for="create-slot">Open Time <span class="req">*</span></label>
+                  <select id="create-slot"><option value="">Loading open times&hellip;</option></select>
+                  <p class="error-msg">Please choose an open time.</p>
+                </div>
+                <div class="form-group">
+                  <label for="create-language">Preferred Language</label>
+                  <select id="create-language">
+                    <option>English</option>
+                    <option>Espa&ntilde;ol</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="create-notes">Notes</label>
+                  <textarea id="create-notes"></textarea>
+                </div>
+                <p class="form-alert" id="create-alert" hidden></p>
+                <button class="btn btn-gold btn-sm" id="create-submit" type="button">Create Appointment</button>
+              </div>
+            </div>
+
             <div class="filter-bar" id="appt-filters">
               <button class="chip is-active" data-filter="pending" type="button">Pending</button>
               <button class="chip" data-filter="confirmed" type="button">Confirmed</button>
@@ -130,6 +198,10 @@
                     <label for="single-time">Time</label>
                     <input type="time" id="single-time" step="900" value="09:00">
                   </div>
+                </div>
+                <div class="form-group">
+                  <label for="single-staff">Who it&rsquo;s with <span class="field-hint" style="display:inline;">(optional)</span></label>
+                  <input type="text" id="single-staff" placeholder="e.g. La Wanda Ford">
                 </div>
                 <label class="check-row"><input type="checkbox" id="single-publish" checked> Publish immediately</label>
                 <p class="form-alert" id="single-alert" hidden></p>
@@ -165,6 +237,10 @@
                     <label for="recur-to">To date</label>
                     <input type="date" id="recur-to">
                   </div>
+                </div>
+                <div class="form-group">
+                  <label for="recur-staff">Who it&rsquo;s with <span class="field-hint" style="display:inline;">(optional)</span></label>
+                  <input type="text" id="recur-staff" placeholder="e.g. Jennifer Calderon">
                 </div>
                 <label class="check-row"><input type="checkbox" id="recur-publish" checked> Publish immediately</label>
                 <p class="form-alert" id="recur-alert" hidden></p>

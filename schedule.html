@@ -235,9 +235,11 @@
                   <p class="error-msg">Please select a service.</p>
                 </div>
                 <div class="form-group" id="group-book-slot">
-                  <label for="book-slot">Appointment Date &amp; Time <span class="req">*</span></label>
-                  <select id="book-slot" name="slot">
-                    <option value="">Loading available times&hellip;</option>
+                  <label>Appointment Date &amp; Time <span class="req">*</span></label>
+                  <div id="slot-calendar" class="cal" aria-label="Choose a date"></div>
+                  <label for="book-slot" class="cal-time-label" id="cal-time-label" hidden>Times</label>
+                  <select id="book-slot" name="slot" aria-label="Appointment time">
+                    <option value="">Pick a highlighted date above</option>
                   </select>
                   <p class="error-msg">Please choose an available time.</p>
                   <p class="field-hint" id="no-slots-hint" hidden>No open times right now — please check back soon or call the office.</p>

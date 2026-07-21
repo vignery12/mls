@@ -97,7 +97,7 @@
       show(el.portalView);
       if (el.email) el.email.textContent = session.user.email || "";
       prefillFromAccount(session.user);
-      loadSlots();
+      refreshCalendar();
       loadAppointments();
     } else {
       show(el.authView);
@@ -205,28 +205,152 @@
     });
   }
 
-  /* ---------- load available slots into the picker ---------- */
-  var slotsCache = [];
-  function loadSlots(selectEl) {
-    var target = selectEl || el.slotSelect;
-    if (!target) return Promise.resolve([]);
-    return sb.rpc("available_slots").then(function (res) {
-      var rows = (res && res.data) || [];
-      if (!selectEl) slotsCache = rows;
-      target.innerHTML = "";
-      var first = document.createElement("option");
-      first.value = "";
-      first.textContent = rows.length ? "Select a time\u2026" : "No open times available";
-      target.appendChild(first);
+  /* ---------- availability: calendar + date-filtered time picker ----------
+     The member picks a DATE on a month calendar (only days with open times are
+     selectable); the time dropdown then shows just that day's times. This keeps
+     the picker usable even when the office publishes months of recurring slots. */
+  var calEl        = document.getElementById("slot-calendar");
+  var timeLabelEl  = document.getElementById("cal-time-label");
+  var slotsByDate  = {};   // "YYYY-MM-DD" -> [slot, ...]
+  var availDates   = [];   // sorted list of dates that have open times
+  var selectedDate = null;
+  var cursor       = null; // { y, m } month currently shown
+
+  function slotTimeLabel(s) {
+    return fmtTime(s.slot_time) + (s.staff_name ? "  \u00b7  with " + s.staff_name : "");
+  }
+
+  function fetchSlots() {
+    return sb.rpc("available_slots").then(function (res) { return (res && res.data) || []; });
+  }
+
+  /* Populate a plain <select> with every upcoming slot (used by reschedule). */
+  function fillSelect(selectEl, rows) {
+    selectEl.innerHTML = "";
+    var first = document.createElement("option");
+    first.value = "";
+    first.textContent = rows.length ? "Select a time\u2026" : "No open times available";
+    selectEl.appendChild(first);
+    rows.forEach(function (s) {
+      var o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = fmtDate(s.slot_date) + " \u2014 " + slotTimeLabel(s);
+      selectEl.appendChild(o);
+    });
+  }
+
+  /* Rebuild the booking calendar from the current open slots. */
+  function refreshCalendar() {
+    if (!calEl) return fetchSlots(); // page without a calendar: nothing to draw
+    return fetchSlots().then(function (rows) {
+      slotsByDate = {};
       rows.forEach(function (s) {
-        var o = document.createElement("option");
-        o.value = s.id;
-        o.textContent = fmtDate(s.slot_date) + " \u2014 " + fmtTime(s.slot_time);
-        target.appendChild(o);
+        (slotsByDate[s.slot_date] = slotsByDate[s.slot_date] || []).push(s);
       });
-      if (!selectEl && el.noSlotsHint) el.noSlotsHint.hidden = rows.length > 0;
+      availDates = Object.keys(slotsByDate).sort();
+
+      if (el.noSlotsHint) el.noSlotsHint.hidden = availDates.length > 0;
+
+      // keep the current selection if it still has times, else pick the first
+      if (!selectedDate || !slotsByDate[selectedDate]) {
+        selectedDate = availDates.length ? availDates[0] : null;
+      }
+      var basis = selectedDate || availDates[0] || todayISOparts();
+      var p = String(basis).split("-");
+      cursor = { y: +p[0], m: +p[1] - 1 };
+
+      drawCalendar();
+      populateTimes(selectedDate);
       return rows;
     });
+  }
+
+  function todayISOparts() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function mk(y, m) { return y * 12 + m; }
+
+  function drawCalendar() {
+    if (!calEl) return;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var curMK = mk(today.getFullYear(), today.getMonth());
+    var lastMK = availDates.length
+      ? (function () { var p = availDates[availDates.length - 1].split("-"); return mk(+p[0], +p[1] - 1); })()
+      : curMK;
+    var shownMK = mk(cursor.y, cursor.m);
+
+    var monthName = ["January","February","March","April","May","June","July","August","September","October","November","December"][cursor.m];
+    var canPrev = shownMK > curMK;
+    var canNext = shownMK < lastMK;
+
+    var html =
+      '<div class="cal-head">' +
+        '<button type="button" class="cal-nav" data-dir="-1" aria-label="Previous month"' + (canPrev ? "" : " disabled") + '>\u2039</button>' +
+        '<span class="cal-title">' + monthName + " " + cursor.y + '</span>' +
+        '<button type="button" class="cal-nav" data-dir="1" aria-label="Next month"' + (canNext ? "" : " disabled") + '>\u203a</button>' +
+      '</div>' +
+      '<div class="cal-grid">' +
+        '<span class="cal-dow">Su</span><span class="cal-dow">Mo</span><span class="cal-dow">Tu</span>' +
+        '<span class="cal-dow">We</span><span class="cal-dow">Th</span><span class="cal-dow">Fr</span><span class="cal-dow">Sa</span>';
+
+    var firstWeekday = new Date(cursor.y, cursor.m, 1).getDay();
+    var daysInMonth = new Date(cursor.y, cursor.m + 1, 0).getDate();
+    for (var i = 0; i < firstWeekday; i++) html += '<span class="cal-cell cal-blank"></span>';
+    for (var d = 1; d <= daysInMonth; d++) {
+      var ds = cursor.y + "-" + String(cursor.m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+      var has = !!slotsByDate[ds];
+      if (has) {
+        var sel = ds === selectedDate ? " is-selected" : "";
+        html += '<button type="button" class="cal-cell cal-day is-available' + sel + '" data-date="' + ds + '">' + d + '</button>';
+      } else {
+        html += '<span class="cal-cell cal-day is-off">' + d + '</span>';
+      }
+    }
+    html += '</div>';
+    calEl.innerHTML = html;
+
+    calEl.querySelectorAll(".cal-nav").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.disabled) return;
+        var dir = +b.getAttribute("data-dir");
+        var nm = cursor.m + dir, ny = cursor.y;
+        if (nm < 0) { nm = 11; ny--; } else if (nm > 11) { nm = 0; ny++; }
+        cursor = { y: ny, m: nm };
+        drawCalendar();
+      });
+    });
+    calEl.querySelectorAll(".cal-day.is-available").forEach(function (b) {
+      b.addEventListener("click", function () {
+        selectedDate = b.getAttribute("data-date");
+        drawCalendar();
+        populateTimes(selectedDate);
+        var g = document.getElementById("group-book-slot");
+        if (g) g.classList.remove("has-error");
+      });
+    });
+  }
+
+  /* Fill the time dropdown with just the selected date's slots. */
+  function populateTimes(date) {
+    if (!el.slotSelect) return;
+    var rows = (date && slotsByDate[date]) || [];
+    el.slotSelect.innerHTML = "";
+    var first = document.createElement("option");
+    first.value = "";
+    first.textContent = rows.length ? "Select a time\u2026" : "Pick a highlighted date above";
+    el.slotSelect.appendChild(first);
+    rows.forEach(function (s) {
+      var o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = slotTimeLabel(s);
+      el.slotSelect.appendChild(o);
+    });
+    if (timeLabelEl) {
+      if (date) { timeLabelEl.hidden = false; timeLabelEl.textContent = "Times on " + fmtDate(date); }
+      else { timeLabelEl.hidden = true; }
+    }
   }
 
   /* ---------- request an appointment ---------- */
@@ -257,11 +381,12 @@
         setBusy(btn, false, "Request Appointment");
         if (res.error) {
           alertBox(document.getElementById("booking-alert"), res.error.message, "error");
-          loadSlots(); // refresh in case the slot was just taken
+          refreshCalendar(); // refresh in case the slot was just taken
           return;
         }
         el.bookingForm.reset();
-        loadSlots();
+        selectedDate = null;
+        refreshCalendar();
         loadAppointments();
         if (window.MLS_openModal) window.MLS_openModal("success-modal");
       });
@@ -286,7 +411,7 @@
   function loadAppointments() {
     if (!el.apptList) return;
     sb.from("appointments")
-      .select("id, slot_date, slot_time, service, status, notes, created_at")
+      .select("id, slot_date, slot_time, staff_name, service, status, notes, created_at")
       .order("slot_date", { ascending: true })
       .order("slot_time", { ascending: true })
       .then(function (res) {
@@ -322,7 +447,8 @@
           '<span class="appt-when">' + esc(fmtDate(a.slot_date)) + " &middot; " + esc(fmtTime(a.slot_time)) + '</span>' +
           '<span class="badge badge-' + meta.cls + '">' + meta.label + '</span>' +
         '</div>' +
-        '<p class="appt-service">' + esc(a.service) + '</p>' +
+        '<p class="appt-service">' + esc(a.service) +
+          (a.staff_name ? ' <span class="appt-with">&middot; with ' + esc(a.staff_name) + '</span>' : '') + '</p>' +
         (a.status === "pending"   ? '<p class="appt-note">Waiting for the office to confirm.</p>' : "") +
         (a.status === "confirmed" ? '<p class="appt-note">Confirmed by our office. We look forward to seeing you.</p>' : "") +
         (a.status === "rejected"  ? '<p class="appt-note">This time didn\u2019t work out. Please request another.</p>' : "") +
@@ -355,7 +481,7 @@
     setBusy(btn, "Cancelling\u2026");
     sb.rpc("cancel_my_appointment", { p_id: id }).then(function (res) {
       if (res.error) { setBusy(btn, false, "Cancel"); window.alert(res.error.message); return; }
-      loadSlots();
+      refreshCalendar();
       loadAppointments();
     });
   }
@@ -371,7 +497,7 @@
       '<p class="form-alert" hidden></p>';
     var sel = box.querySelector(".reschedule-select");
     var alertN = box.querySelector(".form-alert");
-    loadSlots(sel);
+    fetchSlots().then(function (rows) { fillSelect(sel, rows); });
     box.querySelector(".rs-confirm").addEventListener("click", function () {
       var newSlot = sel.value;
       if (!newSlot) { alertBox(alertN, "Please choose a new time.", "error"); return; }
@@ -379,8 +505,8 @@
       setBusy(confirmBtn, "Saving\u2026");
       sb.rpc("reschedule_my_appointment", { p_id: id, p_new_slot_id: newSlot }).then(function (res) {
         setBusy(confirmBtn, false, "Confirm New Time");
-        if (res.error) { alertBox(alertN, res.error.message, "error"); loadSlots(sel); return; }
-        loadSlots();
+        if (res.error) { alertBox(alertN, res.error.message, "error"); fetchSlots().then(function (rows) { fillSelect(sel, rows); }); return; }
+        refreshCalendar();
         loadAppointments();
       });
     });

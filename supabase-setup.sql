@@ -74,6 +74,7 @@ create table public.slots (
   slot_date  date        not null,
   slot_time  time        not null,
   published  boolean     not null default false,
+  staff_name text,                    -- optional: who the appointment is with
   created_by uuid        references auth.users (id) on delete set null,
   unique (slot_date, slot_time)
 );
@@ -97,10 +98,13 @@ create table public.appointments (
   id         uuid        primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  user_id    uuid        not null references auth.users (id) on delete cascade,
+  -- user_id is null for staff-created walk-in / call-in bookings whose client
+  -- has no member account. If it is set, that member sees the appointment.
+  user_id    uuid        references auth.users (id) on delete cascade,
   slot_id    uuid        references public.slots (id) on delete set null,
   slot_date  date        not null,
   slot_time  time        not null,
+  staff_name text,                    -- copied from the slot (who it's with)
   first_name text        not null,
   last_name  text        not null,
   email      text        not null,
@@ -132,8 +136,8 @@ as $$
 begin
   new.updated_at := now();
   if new.slot_id is not null then
-    select s.slot_date, s.slot_time
-      into new.slot_date, new.slot_time
+    select s.slot_date, s.slot_time, s.staff_name
+      into new.slot_date, new.slot_time, new.staff_name
       from public.slots s
       where s.id = new.slot_id;
   end if;
@@ -171,14 +175,15 @@ create policy "Admins delete appointments"
 
 -- (a) Open, published, future slots that nobody has taken yet.
 --     Returns only times — never any personal data.
+drop function if exists public.available_slots();
 create or replace function public.available_slots()
-  returns table (id uuid, slot_date date, slot_time time)
+  returns table (id uuid, slot_date date, slot_time time, staff_name text)
   language sql
   stable
   security definer
   set search_path = public
 as $$
-  select s.id, s.slot_date, s.slot_time
+  select s.id, s.slot_date, s.slot_time, s.staff_name
     from public.slots s
    where s.published = true
      and (s.slot_date > current_date
@@ -243,6 +248,62 @@ begin
 end;
 $$;
 grant execute on function public.book_slot(uuid, text, text, text, text, text, text) to authenticated;
+
+-- (b2) ADMIN: book an open slot on behalf of a walk-in / call-in client.
+--      If a member account already exists for the email, the appointment is
+--      linked to it (so that member sees it on their page); otherwise it is a
+--      standalone booking with no account. Created as 'confirmed'.
+create or replace function public.admin_book_slot(
+  p_slot_id  uuid,
+  p_first    text,
+  p_last     text,
+  p_email    text,
+  p_phone    text,
+  p_service  text,
+  p_language text,
+  p_notes    text
+) returns uuid
+  language plpgsql
+  security definer
+  set search_path = public
+as $$
+declare
+  v_uid  uuid;
+  v_id   uuid;
+  v_open boolean;
+begin
+  if not public.is_admin() then
+    raise exception 'Not authorized.';
+  end if;
+
+  select true into v_open
+    from public.slots s
+   where s.id = p_slot_id
+     and s.published = true
+     and (s.slot_date > current_date
+          or (s.slot_date = current_date and s.slot_time >= current_time))
+     and not exists (
+       select 1 from public.appointments a
+        where a.slot_id = s.id and a.status in ('pending', 'confirmed')
+     );
+
+  if v_open is not true then
+    raise exception 'That time is no longer available. Please pick another.';
+  end if;
+
+  -- Link to an existing member account if the email matches one.
+  select id into v_uid from auth.users where lower(email) = lower(p_email) limit 1;
+
+  insert into public.appointments
+    (user_id, slot_id, first_name, last_name, email, phone, service, language, notes, status)
+  values
+    (v_uid, p_slot_id, p_first, p_last, p_email, p_phone, p_service, p_language, p_notes, 'confirmed')
+  returning id into v_id;
+
+  return v_id;
+end;
+$$;
+grant execute on function public.admin_book_slot(uuid, text, text, text, text, text, text, text) to authenticated;
 
 -- (c) Cancel one of my own appointments.
 create or replace function public.cancel_my_appointment(p_id uuid)

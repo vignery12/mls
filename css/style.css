@@ -929,3 +929,42 @@ padding:6rem 5%;
   .portal-bar { flex-direction: column; align-items: flex-start; }
   .admin-appts { grid-template-columns: 1fr; }
 }
+
+/* ---------- booking calendar (member scheduler) ---------- */
+.cal {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .8rem .9rem 1rem; background: var(--white); margin-bottom: 1rem;
+}
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+.cal-title { font-family: var(--font-display); font-weight: 700; color: var(--navy-800); font-size: 1.1rem; }
+.cal-nav {
+  appearance: none; cursor: pointer; width: 34px; height: 34px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--white); color: var(--navy-800);
+  font-size: 1.2rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+  transition: background .15s ease, border-color .15s ease;
+}
+.cal-nav:hover:not(:disabled) { background: var(--blue-tint); border-color: var(--navy-800); }
+.cal-nav:disabled { opacity: .35; cursor: default; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); padding: .2rem 0 .35rem; }
+.cal-cell { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-size: .92rem; border-radius: 8px; }
+.cal-blank { visibility: hidden; }
+.cal-day.is-off { color: #b7bcc6; }
+.cal-day.is-available {
+  appearance: none; cursor: pointer; border: 1.5px solid var(--gold-500);
+  background: #fdf7e6; color: var(--navy-800); font-weight: 700;
+  transition: background .15s ease, transform .1s ease;
+}
+.cal-day.is-available:hover { background: var(--gold-400); }
+.cal-day.is-selected { background: var(--navy-800); border-color: var(--navy-800); color: var(--white); }
+.cal-day.is-selected:hover { background: var(--navy-700); }
+
+.cal-time-label { display: block; font-weight: 600; font-size: .9rem; color: var(--navy-800); margin-bottom: .4rem; }
+
+.appt-with { color: var(--ink-soft); font-weight: 600; }
+
+/* ---------- admin: misc ---------- */
+.muted { color: var(--ink-soft); }
+.create-appt { margin-bottom: 1.6rem; }
+.create-appt .form-card { margin-top: 1rem; }
